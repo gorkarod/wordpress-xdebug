@@ -1,4 +1,4 @@
-FROM wordpress:6.6.0-php8.3-apache
+FROM wordpress:php8.3-apache
 
 # Install packages under Debian
 RUN apt-get update && \
@@ -25,4 +25,13 @@ COPY files-to-copy/ /
 # and since `wordpress`, in turn, extends the official Docker image `php`,
 # the helper script docker-php-ext-enable (defined for image `php`)
 # works here, and we can use it to enable xdebug:
-RUN docker-php-ext-enable xdebug
+# RUN docker-php-ext-enable xdebug
+# RUN docker-php-ext-enable pdo_mysql
+
+RUN pecl install xdebug-3.2.1 && docker-php-ext-enable xdebug; \
+    {\
+        echo "xdebug.mode=debug"; \
+        echo "xdebug.start_with_request=yes"; \
+        echo "xdebug.client_host=host.docker.internal"; \
+        echo "xdebug.client_port=9000"; \
+    } > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
